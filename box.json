@@ -1,0 +1,36 @@
+{
+    "name":"cfml-compiler",
+    "version":"1.0.0",
+    "author":"Foundeo Inc.",
+    "location":"foundeo/cfml-compiler#v1.0.0",
+    "homepage":"https://github.com/foundeo/cfml-compiler/",
+    "documentation":"https://github.com/foundeo/cfml-compiler/wiki",
+    "repository":{
+        "type":"git",
+        "URL":"https://github.com/foundeo/cfml-compiler"
+    },
+    "bugs":"https://github.com/foundeo/cfml-compiler/issues",
+    "slug":"cfml-compiler",
+    "shortDescription":"A CommandBox comand for compiling CFML code.",
+    "type":"commandbox-modules",
+    "keywords":[
+        "cfml",
+        "compiler"
+    ],
+    "private":false,
+    "license":[
+        {
+            "type":"MIT",
+            "URL":"https://github.com/foundeo/cfml-compiler"
+        }
+    ],
+    "dependencies":{},
+    "devDependencies":{},
+    "installPaths":{},
+    "scripts":{
+        "postVersion":"package set location='foundeo/cfml-compiler#v`package version`'",
+        "onRelease":"publish",
+        "postPublish":"!git push && git push --tags"
+    },
+    "ignore":[]
+}
