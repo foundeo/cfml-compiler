@@ -11,7 +11,7 @@
     },
     "bugs":"https://github.com/foundeo/cfml-compiler/issues",
     "slug":"cfml-compiler",
-    "shortDescription":"A CommandBox comand for compiling CFML code.",
+    "shortDescription":"A CommandBox command for compiling CFML code.",
     "type":"commandbox-modules",
     "keywords":[
         "cfml",
