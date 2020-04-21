@@ -1,8 +1,8 @@
 {
     "name":"cfml-compiler",
-    "version":"1.0.0",
+    "version":"1.0.1",
     "author":"Foundeo Inc.",
-    "location":"foundeo/cfml-compiler#v1.0.0",
+    "location":"foundeo/cfml-compiler#v1.0.1",
     "homepage":"https://github.com/foundeo/cfml-compiler/",
     "documentation":"https://github.com/foundeo/cfml-compiler/wiki",
     "repository":{
