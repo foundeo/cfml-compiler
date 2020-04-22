@@ -14,7 +14,7 @@ Suppose now that you are building a docker container, or a [CFML Lambda Function
     
 ### CFEngine
 
-Currently only Lucee is supported. You should always specify a CFML engine that exactally matches the version that your code will run on. This way if there are any changes to the lucee compiler in a future version you won't run into incompatibale compiled classes.
+Currently only Lucee is supported. You should always specify a CFML engine that exactly matches the version that your code will run on. This way if there are any changes to the lucee compiler in a future version you won't run into incompatibale compiled classes.
 
 ## Command Arguments
 
