@@ -12,28 +12,29 @@ component extends="commandbox.system.BaseCommand" excludeFromHelp=false {
 	property inject="compiler@cfml-compiler" name="compiler";
 
 	/**
-	* @source.hint A file or directory to compile
-	* @dest.hint The destination of the compiled file(s)
-	* @overwrite.hint Allow overwrite without prompting
-	* @cfengine.hint The cfml engine version to compile for
+	* @sourcePath A file or directory to compile
+	* @destPath The destination of the compiled file(s)
+	* @overwrite Allow overwrite without prompting
+	* @cfengine The cfml engine version to compile for
+	* @extensionFilter Pipe-delimited list of paths to compile. ex. *.cfc|*.cfm
 	**/
-	function run(source="./", string dest="", boolean overwrite="false", string cfengine="")  {
+	function run( sourcePath="./", string destPath="", boolean overwrite="false", string cfengine="", string extensionFilter="*.cfm|*.cfc" )  {
 		
 
-		arguments.source = fileSystemUtil.resolvePath(arguments.source);
-		if (!directoryExists(arguments.source) && !fileExists(arguments.source))  {
+		arguments.sourcePath = fileSystemUtil.resolvePath(arguments.sourcePath);
+		if (!directoryExists(arguments.sourcePath) && !fileExists(arguments.sourcePath))  {
 			error("The source path was not a directory or file.");
 		}
 
-		if (arguments.dest == "") {
-			arguments.dest = arguments.source;
+		if (arguments.destPath == "") {
+			arguments.destPath = arguments.sourcePath;
 		} else {
-			arguments.dest = fileSystemUtil.resolvePath(arguments.dest);
+			arguments.destPath = fileSystemUtil.resolvePath(arguments.destPath);
 		}
 
 		if (!arguments.overwrite) {
 			
-			if (arguments.dest == arguments.source) {
+			if (arguments.destPath == arguments.sourcePath) {
 				local.allowOverwrite = ask(message="The source code will be overwritten, type: OK if you want to continue: ");
 				if (local.allowOverwrite != "OK") {
 					print.redLine("10-4, exiting");
@@ -50,10 +51,10 @@ component extends="commandbox.system.BaseCommand" excludeFromHelp=false {
 			local.compilerObj = compiler;
 			local.up = false;
 			if (len(arguments.cfengine) || 1==1) {
-				if (fileExists(arguments.source & "/__cfml-compiler/")) {
-					throw(message="Compiler folder already exists in: #arguments.source#");
+				if (fileExists(arguments.sourcePath & "/__cfml-compiler/")) {
+					throw(message="Compiler folder already exists in: #arguments.sourcePath#");
 				}
-				directoryCopy(getCompilerRoot(), arguments.source & "/__cfml-compiler/")
+				directoryCopy(getCompilerRoot(), arguments.sourcePath & "/__cfml-compiler/")
 				local.serverArgs = {
 					name="cfml-compiler-server",
 					port=50505,
@@ -62,7 +63,7 @@ component extends="commandbox.system.BaseCommand" excludeFromHelp=false {
 					JVMArgs="-Dcfmlcompilerkey=" & local.accessKey,
 					cfengine=arguments.cfengine,
 					openbrowser=false,
-					directory=arguments.source
+					directory=arguments.sourcePath
 				};
 				command( "server start" )
     			.params( argumentCollection=local.serverArgs )
@@ -89,9 +90,9 @@ component extends="commandbox.system.BaseCommand" excludeFromHelp=false {
     		if (!local.up) {
     			error("Unable to start compiler server after 20 seconds.");
 			} else {
-				print.greenLine("Starting compilation of: #arguments.source#");
-				print.greenLine("Destination: #arguments.dest#");
-    			local.result = local.compilerObj.compiler(source=arguments.source, dest=arguments.dest, accessKey=local.accessKey);
+				print.greenLine("Starting compilation of: #arguments.sourcePath#");
+				print.greenLine("Destination: #arguments.destPath#");
+    			local.result = local.compilerObj.compiler(source=arguments.sourcePath, dest=arguments.destPath, accessKey=local.accessKey, extensionFilter=arguments.extensionFilter );
     			if (local.result == "done") {
     				print.greenLine("Finished!");
     			} else {
@@ -117,11 +118,14 @@ component extends="commandbox.system.BaseCommand" excludeFromHelp=false {
     				.run();	
     			
     			sleep(100);
-    			if (directoryExists(arguments.source & "/__cfml-compiler/")) {
-					directoryDelete(arguments.source & "/__cfml-compiler/", true);
+    			var tempCompileDirSrc = arguments.sourcePath & "/__cfml-compiler/";
+    			var tempCompileDirDest = arguments.destPath & "/__cfml-compiler/";
+    			
+    			if (directoryExists( tempCompileDirSrc )) {
+					directoryDelete( tempCompileDirSrc, true);
 				}
-				if (directoryExists(arguments.dest & "/__cfml-compiler/")) {
-					directoryDelete(arguments.dest & "/__cfml-compiler/", true);
+				if ( tempCompileDirSrc != tempCompileDirDest && directoryExists( tempCompileDirDest )) {
+					directoryDelete( tempCompileDirDest, true);
 				}
 			}
 			

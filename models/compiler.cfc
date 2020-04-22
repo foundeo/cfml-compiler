@@ -18,8 +18,8 @@ component {
 		}
 	}
 
-	function compileDirectory(source, dest) {
-		var dir = directoryList(arguments.source, true, "path", "*.cfm|*.cfc");
+	function compileDirectory(source, dest, extensionFilter) {
+		var dir = directoryList(arguments.source, true, "path", extensionFilter);
 		var f = "";
 		var errors = [];
 		//var mappings = {"/compile/"=getDirectoryFromPath(arguments.source)};
@@ -41,12 +41,12 @@ component {
 		return errors;
 	}
 
-	remote string function compiler(string source, string dest, string accessKey="") {
+	remote string function compiler(string source, string dest, string accessKey="", string extensionFilter="*.cfm|*.cfc" ) {
 		var sysAccessKey = createObject("java", "java.lang.System").getProperty("cfmlcompilerkey");
 		if (arguments.accessKey != sysAccessKey) {
 			throw(message="Access Denied");
 		}
-		var errors = compileDirectory(source, dest);
+		var errors = compileDirectory(source, dest, extensionFilter);
 		if (arrayLen(errors)) {
 			return "Errors: #serializeJSON(errors)#";
 		}
