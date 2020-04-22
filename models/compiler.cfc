@@ -22,8 +22,8 @@ component {
 		var dir = directoryList(arguments.source, true, "path", "*.cfm|*.cfc");
 		var f = "";
 		var errors = [];
-		var mappings = {"/compile/"=getDirectoryFromPath(arguments.source)};
-		cfapplication(name="cfmlcompiler", mappings="#mappings#");
+		//var mappings = {"/compile/"=getDirectoryFromPath(arguments.source)};
+		//cfapplication(name="cfmlcompiler", mappings="#mappings#");
 		
 		for (f in dir) {
 			try {

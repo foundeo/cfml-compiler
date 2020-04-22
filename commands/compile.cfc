@@ -22,9 +22,7 @@ component extends="commandbox.system.BaseCommand" excludeFromHelp=false {
 
 		arguments.source = fileSystemUtil.resolvePath(arguments.source);
 		if (!directoryExists(arguments.source) && !fileExists(arguments.source))  {
-			print.redLine("The source path was not a directory or file.");
-			setExitCode(1);
-			return;
+			error("The source path was not a directory or file.");
 		}
 
 		if (arguments.dest == "") {
@@ -89,8 +87,7 @@ component extends="commandbox.system.BaseCommand" excludeFromHelp=false {
     			local.up = true;
     		}
     		if (!local.up) {
-    				print.redLine("Unable to start compiler server after 20 seconds.");
-				setExitCode(1);
+    			error("Unable to start compiler server after 20 seconds.");
 			} else {
 				print.greenLine("Starting compilation of: #arguments.source#");
 				print.greenLine("Destination: #arguments.dest#");
@@ -98,7 +95,7 @@ component extends="commandbox.system.BaseCommand" excludeFromHelp=false {
     			if (local.result == "done") {
     				print.greenLine("Finished!");
     			} else {
-    				print.yellowLine("Unexpected Result: #local.result#");
+    				error("Unexpected Result: #local.result#");
     			}
 
 			}
@@ -116,12 +113,9 @@ component extends="commandbox.system.BaseCommand" excludeFromHelp=false {
 			
 			if (len(arguments.cfengine) || 1 == 1) {
 				command( "server stop" )
-    				.params( name="cfml-compiler-server" )
+    				.params( name="cfml-compiler-server", forget=true )
     				.run();	
-    			sleep(100);
-    			command( "server forget" )
-    				.params( name="cfml-compiler-server", force=true )
-    				.run();	
+    			
     			sleep(100);
     			if (directoryExists(arguments.source & "/__cfml-compiler/")) {
 					directoryDelete(arguments.source & "/__cfml-compiler/", true);
@@ -140,14 +134,11 @@ component extends="commandbox.system.BaseCommand" excludeFromHelp=false {
 
 
 	private function getCompilerRoot() {
-		var p = getCurrentTemplatePath();
-		p = replace(p, "\", "/", "ALL");
-		return replace(p, "commands/compile.cfc", "models"); 
+		return expandPath( '/cfml-compiler/models/' );
 	}
 
 	private function getCompilerFilePath() {
-		var p = getCurrentTemplatePath();
-		p = replace(p, "\", "/", "ALL");
+		return expandPath( '/cfml-compiler/models/compiler.cfc' );
 		return replace(p, "commands/compile.cfc", "models/compiler.cfc"); 
 	}
 	
