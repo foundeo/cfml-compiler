@@ -35,7 +35,7 @@ component {
 				}
 				fileCopy(classFile, arguments.dest & relativePath);
 			} catch (any e) {
-				errors.append({path:f, message:e.message});
+				errors.append({path:f&':'&e.tagContext[1].line, message:e.message});
 			}
 		}
 		return errors;
