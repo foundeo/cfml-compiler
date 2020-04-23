@@ -8,13 +8,26 @@ component {
 
 		var className = pageSource.getJavaName();
 		var classDir = pageSource.getMapping().getClassRootDirectory();
+		// Newer versions of Lucee use the format
+		// cfclasses\CFC__path_to_web_root/path/to/file_cfm$cf.class
 		var classPath = replace(className, ".", "/", "ALL");
+		// Older versions of Lucee use this format
+		// cfclasses\CFC__path_to_web_root/path.to.file_cfm$cf.class
+		var classPath2 = replace(className, "/", ".", "ALL");
+		var classPath2 = replace(classPath2, ".", "/", "ONCE");
 
 		var fullClassPath = classDir & classPath & ".class";
+		var fullClassPath2 = classDir & classPath2 & ".class";
+		
+		// Check behind door number 1
 		if (fileExists(fullClassPath)) {
 			return fullClassPath;
+		// Check behind door number 2
+		} else if(fileExists(fullClassPath2)) {
+			return fullClassPath2;
+		// Give up
 		} else {
-			throw(message="Compiled class was not in the expected location: #fullClassPath#");
+			throw(message="Compiled class was not in the expected location: #fullClassPath# or #fullClassPath2#");
 		}
 	}
 
