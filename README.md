@@ -6,7 +6,7 @@ CommandBox command to compile CFML
 
 To compile a folder `src` and write the compiled files into a `compiled` folder using lucee 5.3.5:
 
-    box cfcompile sourcePath=./src dest=./compiled cfengine=lucee@5.3.5
+    box cfcompile sourcePath=./src destPath=./compiled cfengine=lucee@5.3.5
 
 Suppose now that you are building a docker container, or a [CFML Lambda Function](https://fuseless.org/) you don't need the source files, and you will eliminate the time it takes Lucee to compile your CFML on the first request:
 
