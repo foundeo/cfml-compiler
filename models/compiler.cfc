@@ -54,16 +54,15 @@ component {
 		return errors;
 	}
 
-	remote string function compiler(string source, string dest, string accessKey="", string extensionFilter="*.cfm|*.cfc" ) {
+	remote struct function compiler(string source, string dest, string accessKey="", string extensionFilter="*.cfm|*.cfc" ) {
 		var sysAccessKey = createObject("java", "java.lang.System").getProperty("cfmlcompilerkey");
-		if (arguments.accessKey != sysAccessKey) {
-			throw(message="Access Denied");
+		var result = {errors:[]};
+		if (arguments.accessKey != server.system.environment.foundeo_cfml_compiler_access_key) {
+			return {path:"*", message:"Access Denied"};
 		}
-		var errors = compileDirectory(source, dest, extensionFilter);
-		if (arrayLen(errors)) {
-			return "Errors: #serializeJSON(errors)#";
-		}
-		return "done";
+		result.errors = compileDirectory(source, dest, extensionFilter);
+		
+		return result;
 	}
 
 	remote string function serviceUp() {

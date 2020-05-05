@@ -9,7 +9,7 @@
 component extends="commandbox.system.BaseCommand" excludeFromHelp=false {
 
 	
-	property inject="compiler@cfml-compiler" name="compiler";
+	property inject="proxy@cfml-compiler" name="compiler";
 
 	/**
 	* @sourcePath A file or directory to compile
@@ -54,13 +54,13 @@ component extends="commandbox.system.BaseCommand" excludeFromHelp=false {
 				if (fileExists(arguments.sourcePath & "/__cfml-compiler/")) {
 					throw(message="Compiler folder already exists in: #arguments.sourcePath#");
 				}
+				systemSettings.setSystemSetting( "foundeo_cfml_compiler_access_key", local.accessKey );
 				directoryCopy(getCompilerRoot(), arguments.sourcePath & "/__cfml-compiler/")
 				local.serverArgs = {
 					name="cfml-compiler-server",
 					port=50505,
 					host="127.0.0.1",
 					saveSettings=false,
-					JVMArgs="-Dcfmlcompilerkey=" & local.accessKey,
 					cfengine=arguments.cfengine,
 					openbrowser=false,
 					directory=arguments.sourcePath
@@ -69,34 +69,41 @@ component extends="commandbox.system.BaseCommand" excludeFromHelp=false {
     			.params( argumentCollection=local.serverArgs )
     			.run();
     			
-    			for (local.i =0;i<20;i++) {
+    			for (local.i =0;i<=60;i++) {
     				sleep(1000);
     				try {
-    					local.compilerObj = createObject("webservice", "http://127.0.0.1:50505/__cfml-compiler/compiler.cfc?wsdl");
-    					if (local.compilerObj.serviceUp() == "UP") {
+    					print.yellowLine("Waiting for server to start: #i#/60");
+    					if (local.compilerObj.serviceUp()) {
     						local.up = true;
     						break;
-    					}
-    					print.yellowLine("Waiting for server to start: #i#/20");
+    					} 
+    					
     				} catch (any err) {
     					//try again
+    					//rethrow;
+    					if (i==60) {
+    						rethrow;
+    					}
     				}
     			}
     			
     		} else {
-    			createObject("java", "java.lang.System").setProperty("cfmlcompilerkey", local.accessKey);
+    			//createObject("java", "java.lang.System").setProperty("cfmlcompilerkey", local.accessKey);
     			local.up = true;
     		}
     		if (!local.up) {
-    			error("Unable to start compiler server after 20 seconds.");
+    			error("Unable to start compiler server after 60 seconds.");
 			} else {
 				print.greenLine("Starting compilation of: #arguments.sourcePath#");
 				print.greenLine("Destination: #arguments.destPath#");
     			local.result = local.compilerObj.compiler(source=arguments.sourcePath, dest=arguments.destPath, accessKey=local.accessKey, extensionFilter=arguments.extensionFilter );
-    			if (local.result == "done") {
+    			if (arrayLen(local.result.errors) == 0) {
     				print.greenLine("Finished!");
     			} else {
-    				error("Unexpected Result: #local.result#");
+    				for (local.e in local.result.errors) {
+    					print.line(local.e.path & " : " & local.e.message );
+    				}
+    				error("Errors Encountered");
     			}
 
 			}
